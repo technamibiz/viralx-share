@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Viral X Dashboard</title>
+<style>
+  html,body{height:100%;margin:0;font-family:system-ui,Segoe UI,Roboto,sans-serif;
+    background:#5b5bd6;color:#fff;display:flex;align-items:center;justify-content:center}
+  .card{text-align:center;max-width:520px;padding:28px}
+  .spin{width:34px;height:34px;border:4px solid rgba(255,255,255,.3);border-top-color:#fff;
+    border-radius:50%;animation:s 1s linear infinite;margin:0 auto 18px}
+  @keyframes s{to{transform:rotate(360deg)}}
+  a{color:#fff}
+  .muted{opacity:.8;font-size:14px;margin-top:14px}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="spin" id="spin"></div>
+  <div id="msg">Connecting to the dashboard…</div>
+  <div class="muted" id="sub"></div>
+</div>
+<script>
+// Fixed public link. Forwards to whatever tunnel URL is live right now.
+// The live URL lives in a public gist that the host PC updates on each boot.
+var GIST = "f52b7b50c8a913027cdf48fdaa49310e";
+var api = "https://api.github.com/gists/" + GIST + "?_=" + Date.now();
+function fail(t){
+  document.getElementById("spin").style.display="none";
+  document.getElementById("msg").textContent = t;
+  document.getElementById("sub").innerHTML =
+    "The host PC may be off or still starting up. Try again in a minute.";
+}
+fetch(api, {cache:"no-store", headers:{"Accept":"application/vnd.github+json"}})
+  .then(function(r){ if(!r.ok) throw 0; return r.json(); })
+  .then(function(j){
+    var f = j.files && j.files["share_url.txt"];
+    var url = f && (f.content||"").trim();
+    if(!url || !/^https?:\/\//.test(url)) throw 0;
+    document.getElementById("sub").innerHTML =
+      'If it does not redirect, <a href="'+url+'">click here</a>.';
+    location.replace(url);
+  })
+  .catch(function(){ fail("Dashboard is offline right now."); });
+</script>
+</body>
+</html>
