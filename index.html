@@ -38,8 +38,10 @@ fetch(api, {cache:"no-store", headers:{"Accept":"application/vnd.github+json"}})
     var f = j.files && j.files["share_url.txt"];
     var url = f && (f.content||"").trim();
     if(!url || !/^https?:\/\//.test(url)) throw 0;
+    // Carry ?invite=CODE (and any other query) through, so invite links land prefilled.
+    url = url.replace(/\/+$/, "") + "/" + location.search;
     document.getElementById("sub").innerHTML =
-      'If it does not redirect, <a href="'+url+'">click here</a>.';
+      'If it does not redirect, <a href="'+url.replace(/"/g,"&quot;")+'">click here</a>.';
     location.replace(url);
   })
   .catch(function(){ fail("Dashboard is offline right now."); });
